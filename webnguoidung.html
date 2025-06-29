@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thư viện nghĩa trang liệt sĩ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      color: #222;
+    }
+    header {
+      background: #800000;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    header img {
+      height: 50px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+    header h1 {
+      display: inline;
+      font-size: 24px;
+      vertical-align: middle;
+    }
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .popup-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: left;
+      line-height: 1.6;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.95);}
+      to {opacity: 1; transform: scale(1);}
+    }
+    .popup-content h2 {
+      color: #800000;
+    }
+    .popup-content ul {
+      padding-left: 20px;
+    }
+    .popup-content button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #800000;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .main, .detail {
+      padding: 30px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    .box {
+      background: white;
+      padding: 25px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .search-box {
+      display: flex;
+      gap: 10px;
+    }
+    .search-box input[type=text] {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    input::placeholder {
+      color: #aaa;
+    }
+    .search-box button {
+      padding: 12px 20px;
+      background: #800000;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .results .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .results .result-item:last-child {
+      border-bottom: none;
+    }
+    .footer {
+      margin-top: 100px;
+      background: #eee;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <h2>📢 Thông báo</h2>
+      <p>Chào mừng bạn đến với <strong>Thư viện nghĩa trang liệt sĩ</strong>.</p>
+      <ul>
+        <li>🔍 Tra cứu tên liệt sĩ và thông tin chi tiết</li>
+        <li>🗺️ Biết được vị trí, khu vực nơi an táng</li>
+        <li>🤝 Hỗ trợ người thân dễ dàng tìm đến mộ phần</li>
+      </ul>
+      <p><strong>Nhấn "Bắt đầu tra cứu" để sử dụng hệ thống.</strong></p>
+      <button onclick="startApp()">Bắt đầu tra cứu</button>
+    </div>
+  </div>
+
+  <header>
+    <img src="https://thietkekhainguyen.com/wp-content/uploads/2014/12/tieu-chi-chon-logo-chuan-logo-dep.jpg" alt="Logo">
+    <h1>Thư viện nghĩa trang liệt sĩ</h1>
+  </header>
+
+  <div class="main" id="main" style="display: none;">
+    <div class="box">
+      <h3>🎯 Giới thiệu</h3>
+      <p>Trang web <strong>Thư viện nghĩa trang liệt sĩ</strong> giúp bạn tra cứu thông tin các anh hùng liệt sĩ, biết rõ vị trí mộ phần và khu vực an táng, hỗ trợ việc thăm viếng và tưởng niệm thuận tiện hơn.</p>
+    </div>
+
+    <div class="box">
+      <h3>🔍 Tra cứu liệt sĩ</h3>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Ví dụ: Nguyễn Văn A">
+        <button onclick="search()">Tìm kiếm</button>
+      </div>
+    </div>
+
+    <div class="box results" id="results" style="display:none">
+      <h3>Kết quả tìm kiếm:</h3>
+      <div class="result-item" id="searchResult"></div>
+    </div>
+  </div>
+
+  <div class="detail" id="detailBox" style="display:none">
+    <div class="box">
+      <h2 style="color:#800000; text-align:center; margin-bottom: 20px;">🕯️ Thông tin chi tiết liệt sĩ</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr><td style="padding: 10px; font-weight: bold; width: 180px;">Họ và tên:</td><td><span id="detailName"></span></td></tr>
+        <tr><td style="padding: 10px; font-weight: bold;">Quê quán:</td><td><span id="detailHome"></span></td></tr>
+        <tr><td style="padding: 10px; font-weight: bold;">Đơn vị:</td><td><span id="detailUnit"></span></td></tr>
+        <tr><td style="padding: 10px; font-weight: bold;">Năm hi sinh:</td><td><span id="detailYear"></span></td></tr>
+        <tr><td style="padding: 10px; font-weight: bold;">Lý do hi sinh:</td><td><span id="detailReason"></span></td></tr>
+        <tr><td style="padding: 10px; font-weight: bold;">Địa điểm hi sinh:</td><td><span id="detailLocation"></span></td></tr>
+        <tr><td style="padding: 10px; font-weight: bold;">Nơi an táng:</td><td><span id="detailBurial"></span></td></tr>
+      </table>
+      <div style="text-align: center; margin-top: 30px;">
+        <button onclick="backToSearch()" style="padding: 12px 25px; background: #800000; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">⬅️ Quay lại tra cứu</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    📞 Hỗ trợ: 0332066509 · Zalo 0332066509 · Messenger Giangg Sơnn (IT) <br>
+    📘 Câu hỏi thường gặp (FAQ) · Liên hệ quản trị viên
+  </div>
+
+  <script>
+    function startApp() {
+      document.getElementById('popup').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+    }
+
+    function search() {
+      const name = document.getElementById('searchInput').value.trim();
+      const resultBox = document.getElementById('results');
+      const itemBox = document.getElementById('searchResult');
+      itemBox.innerHTML = '';
+      resultBox.style.display = 'block';
+
+      if (!name) {
+        itemBox.innerHTML = '<em>❗ Vui lòng nhập tên liệt sĩ</em>';
+        return;
+      }
+
+      fetch(`http://localhost:3001/search?name=${encodeURIComponent(name)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            itemBox.innerHTML = '<em>Không tìm thấy kết quả phù hợp.</em>';
+          } else {
+            const first = data[0];
+            itemBox.innerHTML = `
+              <span><strong>${first.full_name}</strong> ( Quê: ${first.hometown} )</span>
+              <button onclick='showDetail(${JSON.stringify(first)})'>Xem thêm</button>
+            `;
+          }
+        })
+        .catch(err => {
+          itemBox.innerHTML = '<em>❌ Lỗi kết nối đến máy chủ</em>';
+        });
+    }
+
+    function showDetail(info) {
+      document.getElementById('main').style.display = 'none';
+      document.getElementById('detailBox').style.display = 'block';
+
+      document.getElementById('detailName').textContent = info.full_name || '';
+      document.getElementById('detailHome').textContent = info.hometown || '';
+      document.getElementById('detailUnit').textContent = info.unit || '';
+      document.getElementById('detailYear').textContent = info.death_year || '';
+      document.getElementById('detailReason').textContent = info.reason || '';
+      document.getElementById('detailLocation').textContent = info.death_location || '';
+      document.getElementById('detailBurial').textContent = info.burial_place || '';
+    }
+
+    function backToSearch() {
+      document.getElementById('detailBox').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+
